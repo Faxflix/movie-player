@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Faxflix Auto Player</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="player">Loading player...</div>
+
+  <script>
+    async function loadPlayer() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postUrl = urlParams.get("link");
+
+      if (!postUrl) {
+        document.getElementById("player").innerText = "❌ No blog post link provided.";
+        return;
+      }
+
+      try {
+        const response = await fetch(postUrl);
+        const html = await response.text();
+
+        const match = html.match(/data-id=["'](tt\d{7,8})["']/);
+
+        if (match && match[1]) {
+          const imdbId = match[1];
+          const script = document.createElement("script");
+          script.src = "https://dktczn.github.io/Dk/cdn/plyrimbd.js";
+          script.setAttribute("data-id", imdbId);
+          document.getElementById("player").innerHTML = "";
+          document.getElementById("player").appendChild(script);
+        } else {
+          document.getElementById("player").innerText = "❌ IMDB ID not found in the blog post.";
+        }
+      } catch (error) {
+        console.error("Error loading blog post:", error);
+        document.getElementById("player").innerText = "⚠️ Error loading player.";
+      }
+    }
+
+    loadPlayer();
+  </script>
+</body>
+</html>
